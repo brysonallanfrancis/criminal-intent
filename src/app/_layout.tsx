@@ -1,18 +1,37 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { IndexHeaderActions, SettingsButton } from "../components/HeaderActions";
+import { ThemeProvider, useTheme } from "../context/ThemeContext";
 
-SplashScreen.preventAutoHideAsync();
+function ThemedStack() {
+  const { theme } = useTheme();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
+    <>
+      <StatusBar style={theme.statusBarStyle} />
+      <Stack
+        screenOptions={{
+          title: "Criminal Intent",
+          headerStyle: { backgroundColor: theme.colors.header },
+          headerTintColor: theme.colors.headerText,
+          headerShadowVisible: false,
+          contentStyle: { backgroundColor: theme.colors.background },
+          headerRight: () => <SettingsButton />,
+        }}
+      >
+        <Stack.Screen name="index" options={{ headerRight: () => <IndexHeaderActions /> }} />
+        <Stack.Screen name="crime/[id]" options={{ title: "Crime Details" }} />
+        <Stack.Screen name="settings" options={{ title: "Settings", headerRight: () => null }} />
+      </Stack>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <ThemedStack />
     </ThemeProvider>
   );
 }
