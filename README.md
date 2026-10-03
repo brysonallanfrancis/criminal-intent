@@ -13,7 +13,7 @@ A React Native app built with Expo for tracking office crimes.
 
 ## Date Picker Test
 
-Tested on an Android emulator (Pixel 7, Android 17) in Expo Go. The date picker uses Android's native Material date picker, so it does not open on iOS or web. The first time it opens it can take a few seconds to appear.
+Tested on an Android emulator (Pixel 7, Android 17) in Expo Go. On Android the date button opens the native Material date picker; the first time it opens it can take a few seconds to appear. On iOS it opens a pop-up with the native iOS calendar picker (`DateButton.tsx`), since the Android picker (`DateButton.android.tsx`) can't run on iOS.
 
 1. Pressing the date button opens the date picker on the crime's current date (Oct 3).
 

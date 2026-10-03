@@ -1,9 +1,9 @@
-import { DatePickerDialog, Host } from "@expo/ui/jetpack-compose";
+import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { useState } from "react";
-import { StyleSheet } from "react-native";
+import { Modal, Pressable, StyleSheet, View } from "react-native";
 
 import { useTheme } from "../context/ThemeContext";
-import { formatDate, fromPickerDate, toPickerDate } from "../utils/dates";
+import { formatDate } from "../utils/dates";
 import { PrimaryButton } from "./PrimaryButton";
 
 type DateButtonProps = {
@@ -13,11 +13,10 @@ type DateButtonProps = {
 
 export function DateButton({ date, onChange }: DateButtonProps) {
   const { theme } = useTheme();
-  const { colors } = theme;
   const [pickerOpen, setPickerOpen] = useState(false);
 
   function selectDate(pickedDate: Date) {
-    onChange(fromPickerDate(pickedDate, date));
+    onChange(pickedDate.toISOString());
     setPickerOpen(false);
   }
 
@@ -29,43 +28,43 @@ export function DateButton({ date, onChange }: DateButtonProps) {
         variant="outlined"
         onPress={() => setPickerOpen(true)}
       />
-      {pickerOpen && (
-        <Host
-          style={styles.host}
-          colorScheme={theme.isDark ? "dark" : "light"}
-          seedColor={colors.accent}
-        >
-          <DatePickerDialog
-            initialDate={toPickerDate(date)}
-            color={colors.accent}
-            elementColors={{
-              containerColor: colors.surface,
-              titleContentColor: colors.textMuted,
-              headlineContentColor: colors.text,
-              weekdayContentColor: colors.textMuted,
-              navigationContentColor: colors.text,
-              yearContentColor: colors.text,
-              selectedYearContentColor: colors.onAccent,
-              selectedYearContainerColor: colors.accent,
-              dayContentColor: colors.text,
-              selectedDayContentColor: colors.onAccent,
-              selectedDayContainerColor: colors.accent,
-              todayContentColor: colors.accent,
-              todayDateBorderColor: colors.accent,
-            }}
-            onDateSelected={selectDate}
-            onDismissRequest={() => setPickerOpen(false)}
-          />
-        </Host>
-      )}
+      <Modal
+        visible={pickerOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPickerOpen(false)}
+      >
+        <View style={styles.overlay}>
+          <Pressable style={styles.backdrop} onPress={() => setPickerOpen(false)} />
+          <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+            <DateTimePicker
+              value={new Date(date)}
+              display="inline"
+              themeVariant={theme.isDark ? "dark" : "light"}
+              accentColor={theme.colors.accent}
+              onChange={(event, pickedDate) => pickedDate && selectDate(pickedDate)}
+            />
+            <PrimaryButton label="Cancel" variant="outlined" onPress={() => setPickerOpen(false)} />
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  host: {
-    position: "absolute",
-    width: 0,
-    height: 0,
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  card: {
+    borderRadius: 20,
+    padding: 16,
+    gap: 12,
   },
 });
